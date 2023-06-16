@@ -36,41 +36,41 @@ class ProductManager {
       const product = { id: nextID, title, description, price, thumbnail, code, stock }
       listProducts.push(product)
       await fs.promises.writeFile(this.path, JSON.stringify(listProducts))
-      return console.log("producto agregado de forma correcta")
+      return console.log("Product added correctly")
     }
   }
 
   getProductById = async (id) => {
     const listProducts = await this.getProducts()
     const product = listProducts.find((p) => p.id === id)
-    return product === undefined ? "Not Found" : product
+    return product || "Not Found"
   }
 
   updateProduct = async (id, dato) => {
-    const product = await this.getProductById(id)
-    if (product) {
-      let productUpdate = await Object.assign(product, dato)
-      await this.deleteProduct(id)
-      const listProducts = await this.getProducts()
-      listProducts.push(productUpdate)
-      await fs.promises.writeFile(this.path, JSON.stringify(listProducts))
-      return console.log("producto actualizado")
-    } return "Not Found ID"
+    const listProducts = await this.getProducts()
+    for (let i in listProducts) {
+      if (listProducts[i].id == id) {
+        listProducts[i] = { ...listProducts[i], ...dato }
+        await fs.promises.writeFile(this.path, JSON.stringify(listProducts))
+        return console.log("Updated product")
+      } return "Not Found ID"
+    }
   }
 
   deleteProduct = async (id) => {
     const listProducts = await this.getProducts()
     const newListProduct = await listProducts.filter((p) => p.id !== id)
     await fs.promises.writeFile(this.path, JSON.stringify(newListProduct))
+    return "Deleted product"
   }
 }
-
-/* const managerProd = async () => {
+/* 
+const managerProd = async () => {
   const manager = new ProductManager('localDB.json')
-  await manager.addProduct('pepas', 'galletitas dulces', 20, 'nueva foto', 80, 12)
-  await manager.addProduct('sonrisas', 'galletitas dulces', 20, 'nueva foto', 560, 12)
+  await manager.addProduct('pepas', 'galletitas dulces', 20, 'nueva foto', 8, 12)
+  await manager.addProduct('sonrisas', 'galletitas dulces', 20, 'nueva foto', 60, 12)
   manager.deleteProduct(2)
   manager.updateProduct(3, { title: 'pitusas' })
 }
 
-managerProd() */
+managerProd()  */
