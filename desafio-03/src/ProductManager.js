@@ -26,41 +26,57 @@ export default class ProductManager {
   }
 
   addProduct = async (title, description, price, thumbnail, code, stock) => {
-    const listProducts = await this.getProducts()
-    const existingProduct = listProducts.some((p) => p.code === code)
-    const nextID = await this.idGenerator(listProducts)
-    if (!title || !description || !price || !thumbnail || !code || !stock) console.log('Se deben completar todos los campos')
-    else if (existingProduct) {
-      console.log('Codigo de producto existente')
-    } else {
-      const product = { id: nextID, title, description, price, thumbnail, code, stock }
-      listProducts.push(product)
-      await fs.promises.writeFile(this.path, JSON.stringify(listProducts))
-      return console.log("Product added correctly")
+    try {
+      const listProducts = await this.getProducts()
+      const existingProduct = listProducts.some((p) => p.code === code)
+      const nextID = await this.idGenerator(listProducts)
+      if (!title || !description || !price || !thumbnail || !code || !stock) console.log('Se deben completar todos los campos')
+      else if (existingProduct) {
+        return console.log('Codigo de producto existente')
+      } else {
+        const product = { id: nextID, title, description, price, thumbnail, code, stock }
+        listProducts.push(product)
+        await fs.promises.writeFile(this.path, JSON.stringify(listProducts))
+        return console.log("Product added correctly")
+      }
+    } catch (error) {
+      console.log(error)
     }
   }
 
   getProductById = async (id) => {
-    const listProducts = await this.getProducts()
-    const product = listProducts.find((p) => p.id === id)
-    return product || "Not Found"
+    try {
+      const listProducts = await this.getProducts()
+      const product = listProducts.find((p) => p.id === id)
+      return product || "Not Found"
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   updateProduct = async (id, dato) => {
-    const listProducts = await this.getProducts()
-    for (let i in listProducts) {
-      if (listProducts[i].id == id) {
-        listProducts[i] = { ...listProducts[i], ...dato }
-        await fs.promises.writeFile(this.path, JSON.stringify(listProducts))
-        return console.log("Updated product")
-      } return "Not Found ID"
+    try {
+      const listProducts = await this.getProducts()
+      for (let i in listProducts) {
+        if (listProducts[i].id == id) {
+          listProducts[i] = { ...listProducts[i], ...dato }
+          await fs.promises.writeFile(this.path, JSON.stringify(listProducts))
+          return console.log("Updated product")
+        } return console.log("Not Found ID")
+      }
+    } catch (error) {
+      console.log(error)
     }
   }
 
   deleteProduct = async (id) => {
-    const listProducts = await this.getProducts()
-    const newListProduct = await listProducts.filter((p) => p.id !== id)
-    await fs.promises.writeFile(this.path, JSON.stringify(newListProduct))
-    return "Deleted product"
+    try {
+      const listProducts = await this.getProducts()
+      const newListProduct = await listProducts.filter((p) => p.id !== id)
+      await fs.promises.writeFile(this.path, JSON.stringify(newListProduct))
+      return console.log("Deleted product")
+    } catch (error) {
+      console.log(error)
+    }
   }
 }
