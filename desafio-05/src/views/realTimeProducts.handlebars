@@ -1,0 +1,108 @@
+<h2>Create Products</h2>
+<form id="form">
+  <label for="name">Name:</label>
+  <input type="text" name="title"><br /><br />
+
+  <label for="name">Price:</label>
+  <input type="number" name="price"><br /><br />
+
+  <label for="name">Stock:</label>
+  <input type="number" name="stock"><br /><br />
+
+  <label for="name">Code:</label>
+  <input type="number" name="code"><br /><br />
+
+  <label for="name">Category:</label>
+  <input type="text" name="category"><br /><br />
+
+  <label for="name">Thumbnails:</label>
+  <input type="text" name="thumbnails"><br /><br />
+
+  <label for="description">Description:</label><br />
+  <textarea rows="4" cols="50" name="description"></textarea><br />
+  <button type="submit">Create</button>
+</form>
+<hr>
+<hr>
+<table border="1">
+  <thead>
+    <tr>
+      <th>#ID</th>
+      <th>Title</th>
+      <th>Description</th>
+      <th>Code</th>
+      <th>Price</th>
+      <th>Stock</th>
+      <th>Category</th>
+      <th>Delete</th>
+    </tr>
+  </thead>
+  <tbody id="table">
+    {{#each AllProducts}}
+    <tr>
+      <td>{{this.id}}</td>
+      <td>{{this.title}}</td>
+      <td>{{this.description}}</td>
+      <td>{{this.code}}</td>
+      <td>{{this.price}}</td>
+      <td>{{this.stock}}</td>
+      <td>{{this.category}}</td>
+      <td onclick="deleteProduct({{this.id}})">
+        Delete{{this.id}}
+      </td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io()
+
+  document.getElementById('form').onsubmit = (e) => {
+    e.preventDefault()
+
+    const title = document.querySelector('input[name=title]').value
+    const price = parseInt(document.querySelector('input[name=price]').value)
+    const stock = parseInt(document.querySelector('input[name=stock]').value)
+    const description = document.querySelector('textarea[name=description]').value
+    const code = document.querySelector('input[name=code]').value
+    const category = document.querySelector('input[name=category]').value
+    const thumbnails = document.querySelector('input[name=thumbnails]').value
+
+    const newProducts = {
+      title,
+      price,
+      stock,
+      description,
+      code,
+      category,
+      thumbnails
+    }
+
+    socket.emit('new-product', newProducts)
+  }
+
+  const deleteProduct = (id) => socket.emit('delete-product', id)
+
+  socket.on('reload-table', allProducts => {
+    const table = document.getElementById('table')
+
+    let insertProducts = ''
+    allProducts.forEach(pr => {
+      insertProducts +=
+        `<tr>
+      <td>${pr.id}</td>
+      <td>${pr.title}</td>
+      <td>${pr.description}</td>
+      <td>${pr.code}</td>
+      <td>${pr.price}</td>
+      <td>${pr.stock}</td>
+      <td>${pr.category}</td>
+      <td onclick="deleteProduct(${pr.id})">Delete${pr.id}</td>
+      </tr>`
+    })
+
+    table.innerHTML = insertProducts
+  })
+</script>
